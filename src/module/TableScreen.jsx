@@ -10,7 +10,7 @@ import { filterData, sortData } from '../utils'
 
 export function TableScreen(props) {
 	const { t } = useTranslation();	
-	const [, setUrlSearchParams] = useSearchParams();
+	const [urlSearchParams, setUrlSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 
 	//* state
@@ -42,7 +42,8 @@ export function TableScreen(props) {
 				type='button'
 				className='btn btn-danger'
 				onClick={() => {
-					setUrlSearchParams(new URLSearchParams(), { replace: true });
+					urlSearchParams.delete('f')
+					setUrlSearchParams(urlSearchParams);
 				}}
 			>{t('General|Cancel')}</button>
 		</>
