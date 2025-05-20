@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DateTime } from 'asab_webui_components';
 
-export default ({ data }) => {
+export default memo(({ data }) => {
   const { t } = useTranslation();
   return (
     <dl className='row g-2'>
@@ -31,4 +31,4 @@ export default ({ data }) => {
       <dd className='col-sm-7 text-end'>{data.mac_address}</dd>
     </dl>
   );
-}
+})

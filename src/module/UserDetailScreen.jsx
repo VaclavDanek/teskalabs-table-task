@@ -49,12 +49,10 @@ export const UserDetailScreen = () => {
         isSuccessful={!error}
         body={
           <div className='p-3'>
-            <div className='flex-fill'>
-              <h5>
-                <i className='bi bi-person-vcard pe-2' />
-                {t('UserDetailScreen|Title')}
-              </h5>
-            </div>
+            <h4 className='flex-fill mb-4'>
+              <i className='bi bi-person-vcard pe-2' />
+              {t('UserDetailScreen|Title')}
+            </h4>
             {error ? (
               <div className='mb-4'>
                 <ErrorHandler error={error} />

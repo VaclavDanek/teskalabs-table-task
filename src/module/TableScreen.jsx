@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -16,20 +16,12 @@ export function TableScreen(props) {
 	//* state
 	const [hoveredUserId, setHoveredUserId] = useState(null);
 
-	const loader = async ({ params }) => {
-		try {
-			const response = await axios.get('https://devtest.teskalabs.com/data', { params });
-			const { data, count } = response.data;
-			const { f: filter } = params;
-
-			const rows = filterData(data, ['username', 'email'], filter);
-			sortData(rows, Object.entries(params).filter(([param]) => param.startsWith('s')));
-			return { count, rows };
-		}
-		catch (e) {	throw e	}
+	const handleOnResetFilter = () => {
+		urlSearchParams.delete('f')
+		setUrlSearchParams(urlSearchParams);
 	}
 
-	const Header = () => (
+	const TableHeader = memo(() => (
 		<>
 			<div className='flex-fill'>
 				<h3>
@@ -41,15 +33,12 @@ export function TableScreen(props) {
 			<button 
 				type='button'
 				className='btn btn-danger'
-				onClick={() => {
-					urlSearchParams.delete('f')
-					setUrlSearchParams(urlSearchParams);
-				}}
+				onClick={handleOnResetFilter}
 			>{t('General|Cancel')}</button>
 		</>
-	);
+	));
 
-	const columns = [
+	const tableColumns = useMemo(() => [
 		{
 			title: t('General|Username'),
 			sort: 'username',
@@ -99,15 +88,25 @@ export function TableScreen(props) {
 					onClick={() => navigate(`/user/${row.id}`)}
 				><i className='bi bi-person-vcard-fill fs-4' /></button>
 			)
-		}
-	];
+		},
+	], [hoveredUserId]);
 
 	return (
 		<Container className='h-100'>
 			<DataTableCard2 
-				header={<Header/>}
-				columns={columns}
-				loader={loader}
+				header={<TableHeader />}
+				columns={tableColumns}
+				loader={async ({ params }) => {
+					try {
+						const response = await axios.get('https://devtest.teskalabs.com/data', { params });
+						const { data, count } = response.data;
+
+						const rows = filterData(data, ['username', 'email'], params.f);
+						sortData(rows, Object.entries(params).filter(([param]) => param.startsWith('s')));
+						return { count, rows };
+					}
+					catch (e) { throw e	}
+				}}
 			/>
 		</Container>
 	);
