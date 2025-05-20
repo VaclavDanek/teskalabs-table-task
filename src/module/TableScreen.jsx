@@ -13,9 +13,6 @@ export function TableScreen(props) {
 	const [urlSearchParams, setUrlSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 
-	//* state
-	const [hoveredUserId, setHoveredUserId] = useState(null);
-
 	const handleOnResetFilter = () => {
 		urlSearchParams.delete('f')
 		setUrlSearchParams(urlSearchParams);
@@ -45,13 +42,14 @@ export function TableScreen(props) {
 			tdStyle: { verticalAlign: 'middle' },
 			render: ({ row }) => {
 				const { id, username } = row;
+				const [content, setContent] = useState(username);
 				return (
 					<div 
-						onMouseEnter={() => setHoveredUserId(id)}
-						onMouseLeave={() => setHoveredUserId(null)}
-					>{hoveredUserId === id ? id : username}</div>
+						onMouseEnter={() => setContent(id)}
+						onMouseLeave={() => setContent(username)}
+					>{content}</div>
 				)
-			}
+			},
 		},
 		{
 			title: t('Genera|Email'),
@@ -89,7 +87,7 @@ export function TableScreen(props) {
 				><i className='bi bi-person-vcard-fill fs-4' /></button>
 			)
 		},
-	], [hoveredUserId]);
+	], []);
 
 	return (
 		<Container className='h-100'>
