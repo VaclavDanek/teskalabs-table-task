@@ -1,76 +1,60 @@
 import React, { useState, memo, useMemo } from 'react';
-import axios from 'axios';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container } from 'reactstrap';
-import { DataTableCard2, DateTime, DataTableFilter2, DataTableSort2 } from 'asab_webui_components';
+import { DataTableCard2, DateTime, DataTableSort2 } from 'asab_webui_components';
 
-//* utils
-import { filterData, sortData } from '../utils'
+//* components
+import { TableHeader } from '../components';
+
+//* hooks
+import { useUsers } from '../api/hooks/useUsers';
 
 export function TableScreen(props) {
-	const { t } = useTranslation();	
-	const [urlSearchParams, setUrlSearchParams] = useSearchParams();
 	const navigate = useNavigate();
+	const { t } = useTranslation();
+	const { fetchUsers: tableLoader } = useUsers();
 
-	const handleOnResetFilter = () => {
-		urlSearchParams.delete('f')
-		setUrlSearchParams(urlSearchParams);
-	}
+	//* constants
+	const GENERAL_CELL_STYLE = { verticalAlign: 'middle' };
 
-	const TableHeader = memo(() => (
-		<>
-			<div className='flex-fill'>
-				<h3>
-					<i className='bi bi-people-fill pe-2' />
-					{t('TableScreen|Title')}
-				</h3>
-			</div>
-			<DataTableFilter2 />
-			<button 
-				type='button'
-				className='btn btn-danger'
-				onClick={handleOnResetFilter}
-			>{t('General|Cancel')}</button>
-		</>
-	));
+	const UserCell = memo(({ id, username }) => {
+		const [content, setContent] = useState(username);
+		return (
+			<div 
+				onMouseEnter={() => setContent(id)}
+				onMouseLeave={() => setContent(username)}
+			>{content}</div>
+		);
+	});
 
 	const tableColumns = useMemo(() => [
 		{
 			title: t('General|Username'),
 			sort: 'username',
-			tdStyle: { verticalAlign: 'middle' },
-			render: ({ row }) => {
-				const { id, username } = row;
-				const [content, setContent] = useState(username);
-				return (
-					<div 
-						onMouseEnter={() => setContent(id)}
-						onMouseLeave={() => setContent(username)}
-					>{content}</div>
-				)
-			},
+			tdStyle: GENERAL_CELL_STYLE,
+			render: ({ row }) => <UserCell id={row.id} username={row.username} />
 		},
 		{
-			title: t('Genera|Email'),
-			tdStyle: { verticalAlign: 'middle' },
+			title: t('General|Email'),
+			tdStyle: GENERAL_CELL_STYLE,
 			render: ({ row }) => row.email
 		},
 		{
 			title: t('General|Created at'),
 			sort: 'created',
-			tdStyle: { verticalAlign: 'middle' },
+			tdStyle: GENERAL_CELL_STYLE,
 			render: ({ row }) => <DateTime value={row.created}/>
 		},
 		{
 			title: t('General|Last signed in'),
 			sort: 'last_sign_in',
-			tdStyle: { verticalAlign: 'middle' },
+			tdStyle: GENERAL_CELL_STYLE,
 			render: ({ row }) => <DateTime value={row.last_sign_in}/>
 		},
 		{
 			title: t('General|Address'),
-			tdStyle: { verticalAlign: 'middle' },
+			tdStyle: GENERAL_CELL_STYLE,
 			render: ({ row }) => row.address
 		},
 		{
@@ -87,24 +71,19 @@ export function TableScreen(props) {
 				><i className='bi bi-person-vcard-fill fs-4' /></button>
 			)
 		},
-	], []);
+	], [t, navigate]);
 
 	return (
 		<Container className='h-100'>
 			<DataTableCard2 
-				header={<TableHeader />}
+				header={
+					<TableHeader 
+						titleKey='TableScreen|Title'  
+						showFilter={true}
+					/>
+				}
 				columns={tableColumns}
-				loader={async ({ params }) => {
-					try {
-						const response = await axios.get('https://devtest.teskalabs.com/data', { params });
-						const { data, count } = response.data;
-
-						const rows = filterData(data, ['username', 'email'], params.f);
-						sortData(rows, Object.entries(params).filter(([param]) => param.startsWith('s')));
-						return { count, rows };
-					}
-					catch (e) { throw e	}
-				}}
+				loader={tableLoader}
 			/>
 		</Container>
 	);

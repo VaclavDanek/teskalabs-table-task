@@ -104,6 +104,7 @@
 	},
 
 	"Error": {
-		"Failed to load user data": "Failed to load user data"
+		"Failed to fetch users": "Failed to load users",
+		"Failed to fetch user data": "Failed to load user data"
 	}
 }

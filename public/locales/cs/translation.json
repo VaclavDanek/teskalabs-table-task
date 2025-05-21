@@ -104,6 +104,7 @@
 	},
 
 	"Error": {
-		"Failed to load user data": "Nepodařilo se načíst data uživatele"
+		"Failed to fetch users": "Nepodařilo se načíst uživatele",
+		"Failed to fetch user data": "Nepodařilo se načíst data uživatele"
 	}
 }

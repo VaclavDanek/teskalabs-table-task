@@ -1,39 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container } from 'reactstrap';
 import { ResultCard, Spinner, ErrorHandler } from 'asab_webui_components';
 
 //* components
-import UserDataList from '../components/user/UserDataList';
-import { BackButton } from '../components/Buttons';
+import { BackButton, UserDataList } from '../components';
+
+//* hooks
+import { useUser } from '../api/hooks/useUser';
 
 export const UserDetailScreen = () => {
   const { t } = useTranslation();
   const { id } = useParams();
+  const { fetchUser, isLoading, error } = useUser();
 
   //* state
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [userData, setUserData] = useState({});
 
   useEffect(() => {
-    setIsLoading(true);
-    axios.get(`https://devtest.teskalabs.com/detail/${id}`)
-      .then((response) => {
-        setUserData(response.data);
-      })
-      .catch((e) => {
-        setError({
-          error: 'UserDetailScreen|Failed to fetch user data',
-          error_dict: { msg: e.message }
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [id]);
+    fetchUser(id).then(userData => setUserData(userData));
+  }, [id, fetchUser]);
 
   if (isLoading) {
     return (
